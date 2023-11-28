@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TbCircleDashed } from "react-icons/tb"
 import { BiCommentDetail } from "react-icons/bi"
 import { AiOutlineSearch } from 'react-icons/ai'
@@ -7,15 +7,25 @@ import { ImAttachment } from 'react-icons/im'
 import ChatCard from './ChatCard/ChatCard'
 import MessageCard from './MessageCard/MessageCard'
 import './HomePage.css'
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Profile from './Profile/Profile'
+import { Menu, MenuItem } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux'
+import { currentUser, logoutAction } from '../Redux/Auth/Action'
+// import { store } from '../Redux/store'
+// import { Navigate } from 'react-router-dom'
 
 const HomePage = () => {
     const [querys, setQuerys] = useState(null)
     const [currentChat, setCurrentChat] = useState(null)
     const [content, setContent] = useState("")
     const [isProfile, setIsProfile] = useState(false)
-    // const navigate = useNavigate(false);
+    const navigate = useNavigate(false);
+    const [anchorEl, setAnchorEl] = useState(null)
+    const open = Boolean(anchorEl)
+    const {auth} = useSelector(store=>store)
+    const dispatch = useDispatch();
+    const token = localStorage.getItem('token')
 
     const handleClickOnChatCard = () => [
         setCurrentChat(true)
@@ -27,9 +37,34 @@ const HomePage = () => {
     const handleNavigate = () => {
         setIsProfile(true)
     }
-    const handleCloseOpenProfile = ()=> {
+    const handleCloseOpenProfile = () => {
         setIsProfile(false)
+        setAnchorEl(null);
     }
+
+    const handleClick = (e) => {
+        setAnchorEl(e.currentTarget);
+    }
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    }
+
+    useEffect(() => {
+        dispatch(currentUser(token))
+    }, [token,dispatch])
+
+    const handleLogout = () => {
+        dispatch(logoutAction)
+        navigate('/signin')
+    }
+
+    useEffect(() => {
+        if(!auth.reqUser){
+            navigate('/signup')
+        }
+    }, [auth.reqUser,navigate])
+    
 
     return (
         <div className='relative'>
@@ -53,6 +88,28 @@ const HomePage = () => {
                                 <div className='space-x-3 text-2xl flex'>
                                     <TbCircleDashed />
                                     <BiCommentDetail />
+                                    <div>
+                                        <BsThreeDotsVertical
+                                            id="basic-button"
+                                            aria-controls={open ? 'basic-menu' : undefined}
+                                            aria-haspopup="true"
+                                            aria-expanded={open ? 'true' : undefined}
+                                            onClick={handleClick}
+                                        />
+
+                                        <Menu
+                                            id="basic-menu"
+                                            anchorEl={anchorEl}
+                                            open={open}
+                                            onClose={handleClose}
+                                            MenuListProps={{
+                                                'aria-labelledby': 'basic-button',
+                                            }}
+                                        >
+                                            <MenuItem onClick={handleNavigate}>Profile</MenuItem>
+                                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                                        </Menu>
+                                    </div>
                                 </div>
                             </div>}
 
