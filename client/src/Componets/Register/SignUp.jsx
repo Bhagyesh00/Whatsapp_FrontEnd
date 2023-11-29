@@ -1,48 +1,55 @@
 import { Alert, Button, Snackbar } from '@mui/material'
 import { green } from '@mui/material/colors'
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+// import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { currentUser, register } from '../../Redux/Auth/Action'
+import { setUser } from '../../utils/firebasedb'
+import { setCurrentUser } from '../../Redux/features/userSlice'
+import { useDispatch } from 'react-redux'
+// import { currentUser, register } from '../../Redux/Auth/Action'
 
 const SignUp = () => {
     const [openSnackbar, setOpenSnackbar] = useState(false)
-    const [inputData, setInputData] = useState({full_name :'', email: '', password: '' })
+    const [wrongOpenSnackbar, setWrongOpenSnackbar] = useState(false);
+    const [inputData, setInputData] = useState({ full_name: '', email: '', password: '' })
+    // const [full_name, setFull_name] = useState('');
+    // const [email, setEmail] = useState('');
+    // const [password, setPassword] = useState('');
 
-    const {auth} = useSelector(store => store)
-    const token = localStorage.getItem('token')
+    // const token = localStorage.getItem('token')
 
-    const dispatch = useDispatch();
-
+    const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('handle submit',inputData)
-        dispatch(register(inputData))
-        setOpenSnackbar(true)
+    const handleSubmit = async (e) => {
+
+        const res = await setUser(inputData.full_name, inputData.email, inputData.password)
+        if (res.data.status === 'success') {
+            setOpenSnackbar(true);
+            dispatch(setCurrentUser(res.data));
+            navigate('/Signup')
+        } else {
+            setWrongOpenSnackbar(true);
+        }
+
     }
 
     const handleChange = (e) => {
-        const {name,value} = e.target
-        setInputData((values)=>({...values,[name]:value}))
+        const { name, value } = e.target
+        setInputData((values) => ({ ...values, [name]: value }))
     }
 
     const handleSnackbarClose = () => {
-        setOpenSnackbar(false)
-    }
+        setOpenSnackbar(false);
+        setWrongOpenSnackbar(false);
+    };
 
     useEffect(() => {
-        if(token){
-            dispatch(currentUser(token))
+        const token = localStorage.getItem('token')
+        if (token) {
+            navigate('/');
         }
-    },[token])
-
-    useEffect(() => {
-        if(auth.reqUser?.full_name){
-            navigate('/')
-        }
-    },[auth.reqUser])
+    }, [localStorage.getItem('token'), navigate]);
 
     return (
         <div>
@@ -51,37 +58,41 @@ const SignUp = () => {
                 <div className='w-[30%] p-10 shadow-md bg-white'>
 
                     <form onSubmit={handleSubmit} className='space-y-5' >
+
                         <div>
                             <p className='mb-2'>User Name</p>
                             <input
+                                className='py-2 px-3 outline outline-green-600 w-full rounded-md border'
+                                type="text"
                                 placeholder='Enter username'
+                                name='full_name'
                                 onChange={(e) => handleChange(e)}
                                 value={inputData.full_name}
-                                type="text"
-                                name='full_name'
-                                className='py-2 px-3 outline outline-green-600 w-full rounded-md border' />
+                            />
                         </div>
 
                         <div>
                             <p className='mb-2'>Email</p>
                             <input
+                                className='py-2 px-3 outline outline-green-600 w-full rounded-md border'
+                                type="text"
                                 placeholder='Enter your Email'
+                                name='email'
                                 onChange={(e) => handleChange(e)}
                                 value={inputData.email}
-                                type="text"
-                                name='email'
-                                className='py-2 px-3 outline outline-green-600 w-full rounded-md border' />
+                            />
                         </div>
 
                         <div>
                             <p className='mb-2'>Password</p>
                             <input
-                                placeholder='Enter your Password'
-                                onChange={(e)=>handleChange(e)}
-                                value={inputData.password}
-                                name = 'password'
+                                className='py-2 px-2 outline outline-green-600 w-full rounded-md border'
                                 type="text"
-                                className='py-2 px-2 outline outline-green-600 w-full rounded-md border' />
+                                placeholder='Enter your Password'
+                                name='password'
+                                onChange={(e) => handleChange(e)}
+                                value={inputData.password}
+                            />
                         </div>
 
                         <div>
@@ -105,6 +116,11 @@ const SignUp = () => {
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
                 <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
                     Your Account Successfully Created!
+                </Alert>
+            </Snackbar>
+            <Snackbar open={wrongOpenSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+                <Alert onClose={handleSnackbarClose} severity='error' sx={{ width: '100%' }}>
+                    Invalid Email or Password!
                 </Alert>
             </Snackbar>
 
