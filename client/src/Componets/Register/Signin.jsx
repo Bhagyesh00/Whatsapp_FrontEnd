@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUser } from '../../utils/firebasedb';
 import { setCurrentUser } from '../../Redux/features/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectCurrentUser } from '../../Redux/features/userSlice';
+// import { selectCurrentUser } from '../../Redux/features/userSlice';
 
 const Signin = () => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -14,7 +14,7 @@ const Signin = () => {
     const [inputData, setInputData] = useState({ email: '', password: '' });
     const dispatch = useDispatch()
     const navigate = useNavigate();
-    const currentUser = useSelector(selectCurrentUser);
+    const currentUser = useSelector(state => state.user.currentUser);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await getUser(inputData.email, inputData.password)

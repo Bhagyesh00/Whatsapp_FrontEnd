@@ -1,11 +1,12 @@
 // src/app/store.js
 
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from '../../src/Redux/features/userSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "./features/userSlice";
+import chatReducer from "./Chat/chatSlice";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    // Add other reducers here if needed
+    chat: chatReducer,
   },
 });

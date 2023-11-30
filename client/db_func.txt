@@ -1,0 +1,87 @@
+    import { doc, setDoc, getDoc, getDocs, deleteDoc, collection } from 'firebase/firestore'
+    import { db } from './configs'
+
+
+    export const getDataFromFirestore = async (collectionName, docId) => {
+        try {
+            const docRef = doc(db, collectionName, docId.toString())
+            const docSnapshot = await getDoc(docRef)
+
+            if (docSnapshot.exists()) {
+                return docSnapshot.data();
+            } else {
+                return null;
+            }
+
+        } catch (error) {
+            return null;
+        }
+    }
+
+    export const getListFromCollection = async (collectionName) => {
+        try {
+            const collectionRef = collection(db, collectionName);
+            const querySnapshot = await getDocs(collectionRef);
+
+            const data = [];
+            querySnapshot.forEach((doc) => {
+                data.push({
+                    id: doc.id,
+                    ...doc.data(),
+                });
+            });
+
+            return data;
+        } catch (error) {
+            console.error('Error getting documents: ', error);
+            return null;
+        }
+    }
+
+
+    export const saveDataToFirestore = async (collectionName, data) => {
+        try {
+            const docRef = doc(db, collectionName, data.id.toString())
+            await setDoc(docRef, data)
+            return true
+        } catch (error) {
+            console.error('Error writing document: ', error)
+            return false
+        }
+    }
+
+    export const deleteDocumentFromFirestore = async (collectionName, docId) => {
+        try {
+            const docRef = doc(db, collectionName, docId.toString())
+            await deleteDoc(docRef)
+            console.log('Document successfully deleted!')
+            return true
+        } catch (error) {
+            console.error('Error deleting document: ', error)
+            return false
+        }
+    }
+
+    export const getIndexFromCodeGenerator = async (docId) => {
+        try {
+            const codeGeneratorDocRef = doc(db, 'CodeGenerator', docId.toString())
+            const codeGeneratorDocSnapshot = await getDoc(codeGeneratorDocRef)
+            return codeGeneratorDocSnapshot.exists
+                ? codeGeneratorDocSnapshot.data().index
+                : null
+        } catch (error) {
+            return null
+        }
+    }
+
+    export const updateIndexInCodeGenerator = async (docId, index) => {
+        try {
+            const codeGeneratorDocRef = doc(db, 'CodeGenerator', docId.toString())
+            await setDoc(codeGeneratorDocRef, { index }, { merge: true })
+            console.log('Index successfully set:', index)
+            return true
+        } catch (error) {
+            console.error('Error updating CodeGenerator document:', error)
+            return null
+        }
+    }
