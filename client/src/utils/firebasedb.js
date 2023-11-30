@@ -100,3 +100,9 @@ export const setUser = async (full_name, email, password) => {
     }
         
 };
+
+// Logout
+
+export const logoutAction = () => async (dispatch) => {
+    localStorage.removeItem('token')
+}
