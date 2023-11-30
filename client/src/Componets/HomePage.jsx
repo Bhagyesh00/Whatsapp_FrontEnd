@@ -6,7 +6,7 @@ import { BsEmojiSmile, BsFilter, BsMicFill, BsThreeDotsVertical } from 'react-ic
 import { ImAttachment } from 'react-icons/im';
 import { Menu, MenuItem } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutAction } from '../Redux/Auth/Action';
+import { logoutAction } from '../utils/firebasedb';
 import { useNavigate } from 'react-router-dom';
 import Profile from './Profile/Profile';
 import ChatCard from './ChatCard/ChatCard';
